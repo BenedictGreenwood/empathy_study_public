@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Title</title>
+    
+    <!-- Internal CSS -->
+    <style>
+        
+        body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    flex-direction: column;
+}
+
+#heatmapContainer, #shockContainer  {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100vw;
+}
+
+#heatmap-prompt {
+    width: 50vw;
+}
+
+.image-container {
+    position: relative;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+}
+
+#useridInputContainer, #nameInputContainer, #friendInputContainer {
+    margin-bottom: 20px;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    background-color: red;
+    border-radius: 50%;
+    position: absolute;
+}
+
+.button-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+#shockButtons, #heatmap-buttons, 
+#navigation-buttons, #containerStartMainButton {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+#containerEndWorkupOrTask {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    width: 100%;
+    position: fixed;
+    bottom: 10px;
+    left: 0;
+    right: 0;
+}
+
+button {
+    font-size: 24px;
+    padding: 5px 10px;
+    margin: 0 10px;
+    cursor: pointer;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+}
+
+.heatmap-button {
+    background-color: 'blue';
+}
+
+.navigation-button {
+    background-color: 'green';
+}
+
+#end-workup-or-task-button, #start-main-button {
+    background-color: 'Brown';
+}
+
+.shockButton {
+    width: 30vw;
+    height: 30vw;
+    justify-content: space-between;
+}
+
+#containerslidersensation {
+    display: flex;
+    width: 80%; 
+    margin: 0 auto;
+    flex-direction: column;
+}
+
+#sliderSensation {
+    display: flex;
+}
+
+#sliderlabelssensation {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.question {
+    margin: 20px;
+    text-align: center;
+}
+
+    </style>
+
+</head>
+
+<body>
+    
+    <div id="useridInputContainer">
+        <label for="userIDprompt">Experimenter please enter the user ID:<br></label>
+        <input type="text" id="userIDinput">
+    </div>
+
+    <div id="nameInputContainer">
+        <label for="myName">Enter your name:<br></label>
+        <input type="text" id="myNameInput" autofocus>
+    </div>
+
+    <div id="friendInputContainer">
+        <label for="friendName">Enter your friend's name:<br></label>
+        <input type="text" id="friendNameInput">
+    </div>
+
+    <div id="miscTextContainer">
+        <p id="miscText">Placeholder text</p>
+    </div>
+
+    <div id="startTrialContainer">
+        <p id="startTrialText"></p>
+        <button class="navigation-button" id="submitRatingsButton">Submit Ratings</button>
+    </div>
+
+    <div id="shockContainer">
+        <p id="shockText">Who received the shock?</p>
+        <div id="shockButtons">
+            <button class="shockButton" id="meButton">ME</button>
+            <button class="shockButton" id="friendButton">
+                <p>Placeholder friend name</p>
+            </button>
+        </div>
+    </div>
+
+    <div id="heatmapContainer">
+        <div class="question" id="heatmapQuestion">
+            <p id=heatmap-prompt>Placeholder text</p>
+        </div>
+        <div class="image-container" id="heatmapImageContainer">
+            <img class="clickable-image" id="heatmapImage" src="editme.jpg" alt="Clickable"
+                style="max-width: 100%; height: auto;">
+        </div>
+        <div class="button-container" id="heatmapButtonsContainer">
+            <div id="heatmap-buttons">
+                <button class="heatmap-button" id="none-button">Editme</button>
+                <button class="heatmap-button" id="all-button">Editme</button>
+                <button class="heatmap-button" id="clear-button-heatmap">Clear</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="containerslidersensation">
+        <p id="questiontextsensation">Rate the intensity of the most intense physical sensation</p>
+        <input type="range" id="sliderSensation" min="0" max="100" step="1">
+        <div id="sliderlabelssensation">
+            <p class=sliderlabelleft id="sliderlabelsensationleft"> No<br>sensation </p>
+            <p class=sliderlabelright id="sliderlabelsensationright"> Unbearable<br>intensity </p>
+        </div>
+    </div>
+
+    <div id="navigation-buttons">
+        <button class="navigation-button" id="back-button">Back</button>
+        <button class="navigation-button" id="next-button">Next</button>
+    </div>
+
+    <div id="containerStartMainButton">
+        <button id="start-main-button">Start main task</button>
+    </div>
+
+    <div id="containerEndWorkupOrTask">
+        <button id="end-workup-or-task-button">Editme</button>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+    
+    const allDivs = document.getElementsByTagName("div"); // Get all div elements on the page
+const heatmapImageContainer = document.querySelector('#heatmapImageContainer');
+var heatmapImage = document.getElementById('heatmapImage');
+//define image URLS - N.B. these were uploaded to facebook as private images. Need to be stored online not locally because 
+//when running on tablet the url of local files will not update due to storage of original url in cache. To dynamically change 
+//the URL using javascript, use online images starting 'https'
+
+const imgBodyOutlineURL = "https://i.postimg.cc/0QFJ3vd9/body-outline.png";
+const imgBodyOutlineRedURL = "https://i.postimg.cc/YqwvmbdX/body-outline-red.png";
+const imgCircumplexURL = "https://i.postimg.cc/wB3MdPBq/axes.png";
+
+const heatmapButtonColour = 'blue';
+const navigationButtonColour = 'green';
+const buttonSelectedColour = 'Indigo';
+const buttonDisabledColour = 'grey';
+const endWorkupOrTaskButtonColour = 'brown';
+const userIDinput = document.getElementById('userIDinput'); //text entered into user ID box
+const nTrialsPerSave = 5; //editme - save frequency
+var userID;
+var myName
+var friendName;
+const datetimeStart = new Date().toISOString().replace(/:/g, '-'); // define datetime
+let imageType = '';
+let emotionDotPlaced = false;
+const dotSizeDefault = 12; //default dot size
+const minDotSize = 4; //minimum dot size
+const nDotSizes = 7; //number of different dot sizes
+const dotSizeGaps = 8; //interval between each dot size
+const dotSizeOptions = Array.from({ length: nDotSizes }, (_, i) => minDotSize + i * dotSizeGaps); //create array of dot size options
+const maxDotSize = minDotSize + dotSizeGaps * (nDotSizes - 1)
+let emotionDotSize = []; //current emotion dot size
+
+//Define buttons for selecting shock recipient
+const shockButtons = document.getElementById('shockButtons'); //buttons to indicate who received shock
+const meButton = document.getElementById('meButton'); //button to indicate user received shock
+const friendButton = document.getElementById('friendButton'); //button to indicate user's friend received shock
+
+//Define sensation intensity slider value
+const sliderSensation = document.getElementById('sliderSensation'); //sensation slider value
+
+//define cache so image can be deleted from it
+const cacheName = 'my-cache';
+const heatmapImgURL = 'body outline.jpg';
+const heatmapRedImgURL = 'body outline red.jpg';
+const circumplexImgURL = 'axes.png';
+
+
+//Initialise response data variables
+let clickCoordinates = [];
+let clickCoordinatesPerc = [];
+let painLocation = [];
+let clickCoordinates_circumplex = [];
+let valenceRating = [];
+let arousalRating = [];
+let emotionIntensityRating = []; //scored from 1 [lowest intensity] to nDotSizes [highest intensity]
+var shockButtonSlcted
+var sensationRating = [];
+
+//Initialise trial info variables
+var i_trial = 0
+var i_trial_incl_workup = 0
+var phase = 'workup';
+
+//Initialise variables for data table, which will take 
+//one trial of data per row
+var userIDEachTrial = []; //user ID
+userIDEachTrial[0] = 'userID';
+
+var phaseEachTrial = [] //phase (workup or main)
+phaseEachTrial[0] = 'phase';
+
+var trialNos = []; //trial number
+trialNos[0] = 'trialNo'
+
+var trialNosInclWorkup = []; //trial number including workup
+trialNosInclWorkup[0] = 'trialNoInclWorkup'
+
+var shockRecipient = []; //shock recipient
+shockRecipient[0] = 'shockRecipient';
+
+var sensationLocation = []; //sensation location
+sensationLocation[0] = 'sensationLocation';
+
+var sensationCoordinates = []; //sensation coordinates
+sensationCoordinates[0] = 'sensationCoordinates'
+
+var sensationCoordinatesPerc = []; //sensation coordinates as percentage of image width/height
+sensationCoordinatesPerc[0] = 'sensationCoordinatesPerc'
+
+var ratingSensationIntensity = []; //sensation intensity
+ratingSensationIntensity[0] = 'sensationIntensity';
+
+var ratingsArousal = []; //arousal ratings (0 [calm] to 100 [stimuluated])
+ratingsArousal[0] = 'ratingArousal'
+
+var ratingsValence = []; //valence ratings (0 [negative] to 100 [positive])
+ratingsValence[0] = 'ratingValence'
+
+var emotionIntensity = []; //emotion intensity rating scored from 1 (low) to nDotSizes (high)
+emotionIntensity[0] = 'emotionIntensity'
+
+//start task by getting experimenter to enter user ID
+enterUserID()
+
+function enterUserID() { //function for entering user ID
+
+    //display text entry box and navigation buttons
+    hideAll()
+    document.getElementById('useridInputContainer').style.display = 'block';
+    document.getElementById('navigation-buttons').style.display = 'flex';
+
+    //remove all event listers from navigation buttons
+    resetBackNextButtons()
+
+    //deactivate back button
+    document.getElementById('back-button').style.backgroundColor = buttonDisabledColour;
+    document.getElementById('back-button').disabled = true;
+
+    // activate next button
+    activateNextButton(recordUserID)
+
+}
+
+function recordUserID() { //function for recording user ID
+
+    //Record text entry
+    userID = userIDinput.value;
+    localStorage.setItem('userID', userID);
+
+    //run next function
+    enterFriendName()
+
+}
+
+function enterMyName() { //function for entering user's name
+
+    //display text entry box and navigation buttons
+    hideAll()
+    document.getElementById('nameInputContainer').style.display = 'block';
+    document.getElementById('navigation-buttons').style.display = 'flex';
+
+    //remove all event listers from navigation buttons
+    resetBackNextButtons()
+
+    // activate back button and next button
+    activateBackButton(enterUserID)
+    activateNextButton(enterFriendName)
+}
+
+function enterFriendName() { //function for user to enter their friend's name
+
+    //display text entry box and navigation buttons
+    hideAll()
+    document.getElementById('friendInputContainer').style.display = 'block';
+    document.getElementById('navigation-buttons').style.display = 'flex';
+
+    //remove all event listers from navigation buttons
+    resetBackNextButtons()
+
+    // activate back button and next button
+    activateBackButton(enterUserID)
+    activateNextButton(showThankYouMessage)
+}
+
+function showThankYouMessage() { //function for showing thank you message after user has entered names   
+    //store names
+    //myName = myNameInput.value;
+    //localStorage.setItem('myName', myName);
+    
+    friendName = friendNameInput.value;
+    friendName = friendName.toUpperCase(); //make upper case
+    localStorage.setItem('friendName', friendName);
+
+    //show misc text and navigation buttons
+    hideAll()
+    document.getElementById('miscTextContainer').style.display = 'block';
+    document.getElementById('navigation-buttons').style.display = 'flex';
+
+    //remove all event listers from navigation buttons
+    resetBackNextButtons()
+
+    //change text
+    document.getElementById('miscText').textContent = `Thank you!`;
+
+
+    //Add event listener to back and next button
+    activateBackButton(enterFriendName)
+    activateNextButton(trialStart)
+
+}
+
+function trialStart() { //function for start of trial
+
+    //add 1 to trial number
+    i_trial++
+    i_trial_incl_workup++
+
+    //log values
+    phaseEachTrial[i_trial_incl_workup] = phase; //phase
+    trialNos[i_trial_incl_workup] = i_trial; //trial number
+    trialNosInclWorkup[i_trial_incl_workup] = i_trial_incl_workup; //trial number including workup
+    userIDEachTrial[i_trial_incl_workup] = userID; //user ID
+
+    //show submit ratings button
+    hideAll()
+    document.getElementById('startTrialContainer').style.display = 'block';
+
+    //activate submit ratings button (add mouse click event listener)
+    document.getElementById('submitRatingsButton').style.backgroundColor = navigationButtonColour; //change colour
+    document.getElementById('submitRatingsButton').addEventListener('click', selectShockRecipient);
+}
+
+function selectShockRecipient() { //function to select shock recipient
+
+    //Show question text and response buttons
+    hideAll()
+    document.getElementById('shockContainer').style.display = 'flex';
+    shockButtons.style.display = 'inline-flex';
+
+    //Set colour of response buttons
+    meButton.style.backgroundColor = heatmapButtonColour;
+    friendButton.style.backgroundColor = heatmapButtonColour;
+
+    //edit text in button for friend
+    friendButton.textContent = friendName;
+
+    //Add event listener to each of the response buttons
+    shockButtons.addEventListener('click', (e) => {
+
+        // get id of clicked button
+        buttonClickedShock = e.target.id;
+
+        //Save which person received the shock
+        if (buttonClickedShock == 'meButton') { //if user received shock...
+            shockButtonSlcted = 'Self'
+            localStorage.setItem('shockButtonClicked', shockButtonSlcted); //Save which person received shock
+            //Record shock recipient
+            shockRecipient[i_trial_incl_workup] = shockButtonSlcted
+            //Run next function
+            rateLocation()
+        }
+        else if (buttonClickedShock == 'friendButton') { //if user's friend received shock...
+            shockButtonSlcted = 'Other'
+            localStorage.setItem('shockButtonClicked', shockButtonSlcted); //Save which person received shock 
+            //Record shock recipient
+            shockRecipient[i_trial_incl_workup] = shockButtonSlcted
+            //Run next function
+            rateLocation()
+        }
+    });
+
+}
+
+function rateLocation() { // function for rating location of physical sensation
+
+    //Show question and body heatmap image
+    hideAll()
+    document.getElementById('heatmapContainer').style.display = 'flex';
+    document.getElementById('heatmapQuestion').style.display = 'flex';
+    document.getElementById('heatmapImageContainer').style.display = 'flex';
+    document.getElementById('heatmapButtonsContainer').style.display = 'flex';
+    document.getElementById('heatmap-buttons').style.display = 'flex';
+    document.getElementById('navigation-buttons').style.display = 'flex';
+
+    //Reset buttons
+    resetHeatmapButtons() //reset heatmap button colours
+    resetBackNextButtons() //reset back/next buttons
+
+    //Clear any dots
+    clearDots()
+
+    //Set heatmap button text
+    document.getElementById('none-button').textContent = 'None'; //set text
+    document.getElementById('all-button').textContent = 'All over'; //set text
+
+    //Set image to heatmap
+    //(must link to image online starting https instead of 
+    //image in local files otherwise image url will not update on tablets due to storage of original url in cache)
+    heatmapImage.src = imgBodyOutlineURL;
+    //heatmapImage.src = "body outline.jpg"
+
+    //Set question text
+    let promptTextLocation
+    if (shockButtonSlcted == 'Self') { //if user received the shock
+        promptTextLocation = ['Rate the location of any physical sensations you felt when YOU received the shock'].join('');
+    }
+    else if (shockButtonSlcted == 'Other') { //if user's friend received the shock
+        promptTextLocation = ['Rate the location of any physical sensations you felt when you saw ', friendName, ' receive the shock'].join('');
+    }
+
+    document.getElementById('heatmap-prompt').textContent = promptTextLocation; //set text
+
+    //set image type
+    imageType = 'heatmap';
+
+    //reset sensation intensity rating 
+    sensationRating = [];
+
+    //remove event listener from heatmap image clicks
+    document.getElementById('heatmapImage').removeEventListener('click', getCircumplexClicks);
+
+    // Add event listeners to buttons
+    document.getElementById('clear-button-heatmap').addEventListener('click', clearDots); //clear button
+    document.getElementById('all-button').addEventListener('click', allOverLocation); //all over button
+    document.getElementById('none-button').addEventListener('click', noLocation); //none button
+    activateBackButton(selectShockRecipient);
+
+    // Add event listener for the clicks on the body outline image
+    document.getElementById('heatmapImage').addEventListener('click', getHeatmapClicks, false);
+}
+
+
+function getHeatmapClicks(e){
+        var rect = heatmapImage.getBoundingClientRect();
+        var x = e.clientX - rect.left;
+        var y = e.clientY - rect.top;
+        clickCoordinates.push({ x: x, y: y }); //store coordinates
+        addDot(x, y, dotSizeDefault);
+        x_perc = 100 * (x) / rect.width; //calculate x coordinate as a percentage of image width
+        y_perc = 100 * (y) / rect.height; //calculate x coordinate as a percentage of image width
+        clickCoordinatesPerc.push({ x: x_perc, y: y_perc }); //store coordinates as percentage of image height/width
+
+    }
+
+function rateSensationIntensity() {
+
+    //Show relevant content
+    hideAll()
+    document.getElementById('containerslidersensation').style.display = 'flex';
+    sliderSensation.style.display = 'flex';
+    document.getElementById('navigation-buttons').style.display = 'flex';
+    document.getElementById('sliderlabelssensation').style.display = 'flex';
+
+    //reset next and back buttons
+    resetBackNextButtons()
+
+    //set random slider value
+    sliderSensation.value = Math.floor(Math.random() * 101);
+
+    // Add event listeners to slider
+    sliderSensation.addEventListener('input', sensationSliderMoved); //slider
+    activateBackButton(rateLocation) //back button
+
+    //get sensation rating from slider
+    sensationRating = parseInt(sliderSensation.value);
+
+    //Function to enable the 'Next' button when the slider is moved
+    function sensationSliderMoved() {
+        activateNextButton(processSensationRating) //next button
+    }
+
+}
+
+//Function for processing sensation intensity rating
+function processSensationRating() {
+
+    //Process location
+    sensationLocation[i_trial_incl_workup] = painLocation
+    sensationCoordinates[i_trial_incl_workup] = clickCoordinates;
+    sensationCoordinatesPerc[i_trial_incl_workup] = clickCoordinatesPerc;
+
+    //Process intensity rating
+    ratingSensationIntensity[i_trial_incl_workup] = sensationRating
+
+    rateEmotion()
+}
+
+
+function rateEmotion() { // function for rating emotion
+    //define image type
+    imageType = 'circumplex'
+
+    //Show question and body heatmap image
+    hideAll()
+    document.getElementById('heatmapContainer').style.display = 'flex';
+    document.getElementById('heatmapQuestion').style.display = 'flex';
+    document.getElementById('heatmapImageContainer').style.display = 'flex';
+    document.getElementById('heatmapButtonsContainer').style.display = 'flex';
+    document.getElementById('heatmap-buttons').style.display = 'flex';
+    document.getElementById('navigation-buttons').style.display = 'flex';
+
+    //Reset buttons
+    resetHeatmapButtons() //reset heatmap button colours
+    resetBackNextButtons() //reset back/next buttons
+
+    //remove event listeners from heatmap buttons
+    document.getElementById('none-button').removeEventListener('click', noLocation); //none button
+    document.getElementById('all-button').removeEventListener('click', allOverLocation); //all over button
+
+    //remove event listener from heatmap image clicks
+    //document.getElementById('heatmapImage').removeEventListener('click', getHeatmapClicks);
+
+    //Clear any dots
+    clearDots()
+
+    //Set question text
+    let promptTextLocation
+    if (shockButtonSlcted == 'Self') { //if user received the shock
+        promptTextLocation = ['Rate your thoughts and emotions when YOU received the shock'].join('');
+    }
+    else if (shockButtonSlcted == 'Other') { //if user's friend received the shock
+        promptTextLocation = ['Rate your thoughts and emotions when you saw ', friendName, ' receive the shock'].join('');
+    }
+    document.getElementById('heatmap-prompt').textContent = promptTextLocation; //set text
+
+    //Change the heatmap image to the circumplex image 
+    //(must link to image online starting https instead of 
+    //image in local files otherwise image url will not update on tablets due to storage of original url in cache)
+    //heatmapImage.src = "axes.png";
+     heatmapImage.src = imgCircumplexURL; 
+
+    //Change the button labels
+    document.getElementById('none-button').textContent = 'Decrease intensity'; //set text
+    document.getElementById('all-button').textContent = 'Increase intensity'; //set text
+
+    //Set random current dot size
+    emotionDotSize = getRandomElement(dotSizeOptions);
+
+    //reset emotion ratings
+    arousalRating = [];
+    valenceRating = [];
+    emotionIntensityRating = [];
+
+    //remove event listener from heatmap image clicks
+    document.getElementById('heatmapImage').removeEventListener('click', getHeatmapClicks);
+
+    // Add event listener for the clicks on the circumplex image
+    document.getElementById('heatmapImage').addEventListener('click', getCircumplexClicks, false);
+
+    // Add event listeners to buttons
+    document.getElementById('clear-button-heatmap').addEventListener('click', clearDots); //clear button
+    document.getElementById('none-button').addEventListener('click', decreaseDotSize); //none button
+    document.getElementById('all-button').addEventListener('click', increaseDotSize); //all over button
+    activateBackButton(rateLocation);
+
+}
+
+function getCircumplexClicks(e){
+        var rect = heatmapImage.getBoundingClientRect();
+        var x = e.clientX - rect.left;
+        var y = e.clientY - rect.top;
+
+        //define clickable area of image (within axis bounds)
+        var proportionClickableArea = 0.873;
+        let clickableWidth = rect.width * proportionClickableArea;
+        let clickableRectTopLeftX = rect.width * ((1 - proportionClickableArea) / 2);
+        let clickableRectTopLeftY = rect.height * ((1 - proportionClickableArea) / 2);
+        let clickableRectBtomRightX = clickableRectTopLeftX + clickableWidth;
+        let clickableRectBtomRightY = clickableRectTopLeftY + clickableWidth;
+
+        //define boolean for whether click is in clickable are
+        let dotWithinClickableRect = (x > clickableRectTopLeftX && x < clickableRectBtomRightX && y > clickableRectTopLeftY && y < clickableRectBtomRightY);
+
+        //place dot
+        if (emotionDotPlaced == false & dotWithinClickableRect) {
+
+            clickCoordinates_circumplex.push({ x: x, y: y }); 
+
+            //calculate arousal/valence ratings
+            arousalRating.push(100 - 100 * (y - clickableRectTopLeftY) / clickableWidth);
+            valenceRating.push(100 * (x - clickableRectTopLeftX) / clickableWidth);
+            emotionIntensityRating.push((dotSizeGaps + emotionDotSize - minDotSize) / dotSizeGaps); //scored from 1 to nDotSizes
+
+            //place dot
+            addDot(x, y, emotionDotSize);
+        }
+    }
+
+// Function for end of trial
+function endTrial() {
+    //show misc text and navigation buttons
+    hideAll()
+    document.getElementById('miscTextContainer').style.display = 'block';
+    document.getElementById('navigation-buttons').style.display = 'flex';
+    document.getElementById('containerEndWorkupOrTask').style.display = 'flex';
+
+    //remove all event listers from navigation buttons
+    resetBackNextButtons()
+
+    //change text
+    document.getElementById('miscText').textContent = `Ratings submitted`;
+
+    //set colour of button to end workup/task
+    document.getElementById('end-workup-or-task-button').style.backgroundColor = endWorkupOrTaskButtonColour;
+
+    //Update values before saving data
+    ratingsArousal[i_trial_incl_workup] = parseInt(arousalRating);
+    ratingsValence[i_trial_incl_workup] = parseInt(valenceRating);
+    emotionIntensity[i_trial_incl_workup] = parseInt(emotionIntensityRating);
+
+    //save data
+    saveData()
+
+    //Add event listener to back button
+    activateBackButton(rateEmotion)
+    activateNextButton(trialStart)
+
+    //Set up end button
+    if (phase == 'workup'){
+        //change end button text
+        document.getElementById('end-workup-or-task-button').textContent = `End workup`;
+
+        //add event listener to end button
+        document.getElementById('end-workup-or-task-button').addEventListener('click', endWorkup)
+
+
+    } else if (phase == 'main_task'){
+        //change end button text
+        document.getElementById('end-workup-or-task-button').textContent = `End task`;
+
+        //add event listener to end button
+        document.getElementById('end-workup-or-task-button').addEventListener('click', endTask)
+    }
+
+}
+
+//function for decreasing dot size
+function decreaseDotSize() {
+
+    //if dot is not already minimum size
+    if (emotionDotSize > minDotSize) {
+
+        //temporarily store dot coordinates before redrawing dots since these variables will be reset
+        let dotCoordinatesTemp = clickCoordinates_circumplex;
+        let arousalTemp = arousalRating;
+        let valenceTemp = valenceRating;
+        let emotionIntensityTemp = emotionIntensityRating;
+
+        //change dot size
+        emotionDotSize = emotionDotSize - dotSizeGaps;
+
+        //clear dots
+        clearDots()
+
+        //add dot
+        addDot(dotCoordinatesTemp[0].x, dotCoordinatesTemp[0].y, emotionDotSize)
+
+        //set cleared variables back to their previous values
+        clickCoordinates_circumplex = dotCoordinatesTemp;
+        arousalRating = arousalTemp;
+        valenceRating = valenceTemp;
+        emotionIntensityRating = emotionIntensityTemp -= 1; //subtract 1
+
+    }
+}
+
+//function for decreasing dot size
+function increaseDotSize() {
+
+    //if dot is not already minimum size
+    if (emotionDotSize < maxDotSize) {
+
+        //temporarily store dot coordinates before redrawing dots since these variables will be reset
+        let dotCoordinatesTemp = clickCoordinates_circumplex;
+        let arousalTemp = arousalRating;
+        let valenceTemp = valenceRating;
+        let emotionIntensityTemp = emotionIntensityRating;
+
+        //change dot size
+        emotionDotSize = emotionDotSize + dotSizeGaps;
+
+        //clear dots
+        clearDots()
+
+        //add dot
+        addDot(dotCoordinatesTemp[0].x, dotCoordinatesTemp[0].y, emotionDotSize)
+
+        //set cleared variables back to their previous values
+        clickCoordinates_circumplex = dotCoordinatesTemp;
+        arousalRating = arousalTemp;
+        valenceRating = valenceTemp;
+        emotionIntensityRating = emotionIntensityTemp
+        emotionIntensityRating++ //add 1
+    }
+}
+
+// Function for saving full task data
+function saveData() {
+    let data = []; //predefine
+
+    //combine all variables into an array
+    data.push(userIDEachTrial);
+    data.push(phaseEachTrial);
+    data.push(trialNos);
+    data.push(trialNosInclWorkup);
+    data.push(shockRecipient);
+    data.push(sensationLocation);
+    data.push(sensationCoordinates);
+    data.push(sensationCoordinatesPerc);
+    data.push(ratingSensationIntensity);
+    data.push(ratingsArousal);
+    data.push(ratingsValence);
+    data.push(emotionIntensity)
+
+    data = transpose(data);//transpose array otherwise it displays incorrectly
+
+    //store data in browser
+    localStorage.setItem('dataAllTrials', JSON.stringify(data));
+
+
+    //download data every nTrialsPerSave trials
+    if (i_trial % nTrialsPerSave == 0){
+    
+    downloadData();
+
+    }
+}
+
+// function for transposing a matrix
+function transpose(matrix) {
+    return matrix[0].map((col, i) => matrix.map(row => row[i]));
+}
+
+function addDot(x, y, size) {
+    // Change colour of heatmap buttons
+    //document.getElementById('all-button').style.backgroundColor = heatmapButtonColour;
+    //document.getElementById('none-button').style.backgroundColor = heatmapButtonColour;
+    resetHeatmapButtons()
+
+    // Add dot
+    const dot = document.createElement('div');
+    dot.classList.add('dot');
+    dot.style.width = `${size}px`;
+    dot.style.height = `${size}px`;
+    dot.style.left = `${x - size / 2}px`; // Adjusting for dot size
+    dot.style.top = `${y - size / 2}px`; // Adjusting for dot size
+    heatmapImageContainer.appendChild(dot);
+
+    // if dot is being added to heatmap...
+    if (imageType == 'heatmap') {
+        
+        // Revert to original image
+        
+        //(must link to image online starting https instead of 
+        //image in local files otherwise image url will not update on tablets due to storage of original url in cache)
+        //heatmapImage.src = "body outline.jpg";
+        heatmapImage.src = imgBodyOutlineURL;
+
+        // Activate next button (add event listener)
+        activateNextButton(rateSensationIntensity);
+        document.getElementById('all-button').addEventListener('click', allOverLocation); //all over button
+        document.getElementById('none-button').addEventListener('click', noLocation); //none button
+
+        // Update stored values
+        painLocation = 'localised';
+    }
+
+    // if dot is being added to circumplex...
+    else if (imageType == 'circumplex') {
+        // Update boolean for whether dot has been placed
+        emotionDotPlaced = true;
+
+        // Activate next button (add event listener)
+        activateNextButton(endTrial);
+
+        //add event listeners to heatmap buttons
+        document.getElementById('clear-button-heatmap').addEventListener('click', clearDots); //clear button
+        document.getElementById('none-button').addEventListener('click', decreaseDotSize); //none button
+        document.getElementById('all-button').addEventListener('click', increaseDotSize); //all over button
+    }
+}
+
+
+
+function saveCoordinates() {
+    console.log('Coordinates:', clickCoordinates);
+    // You can replace the console.log with your own function to handle the coordinates
+
+}
+
+function clearDots() {
+
+    // Remove all dots from the image
+    const dots = document.querySelectorAll('.dot');
+    dots.forEach(dot => dot.remove());
+
+    //change colour of navigation buttons
+    document.getElementById('next-button').disabled = true; //activate next button
+    document.getElementById('next-button').style.backgroundColor = buttonDisabledColour;
+
+    //Reset heatmap buttons
+    resetHeatmapButtons()
+
+    //if image type is heatmap...
+    if (imageType == 'heatmap') {
+
+        //Revert to original image
+        
+        //(must link to image online starting https instead of 
+        //image in local files otherwise image url will not update on tablets due to storage of original url in cache)
+        //heatmapImage.src = "body outline.jpg";
+        heatmapImage.src = imgBodyOutlineURL;
+
+        //Update stored values
+        clickCoordinates = []; // Clear the stored coordinates
+        clickCoordinatesPerc = []; // Clear the stored coordinates
+        painLocation = []; //clear pain location
+
+        //add event listeners back to buttons
+        document.getElementById('all-button').addEventListener('click', allOverLocation);
+        document.getElementById('none-button').addEventListener('click', noLocation);
+        document.getElementById('clear-button-heatmap').addEventListener('click', clearDots); //clear button
+
+        //if image type is circumplex...
+    }
+    else if (imageType == 'circumplex') {
+
+        //set emotionDotPlaced boolean to false
+        emotionDotPlaced = false;
+
+        //Reset stored values
+        clickCoordinates_circumplex = []
+        valenceRating = []
+        arousalRating = []
+        emotionIntensityRating = []
+    }
+
+}
+
+function allOverLocation() {
+    //Remove dots
+    clearDots()
+
+    //change colour of buttons
+    resetHeatmapButtons()
+    resetBackNextButtons()
+    document.getElementById('all-button').style.backgroundColor = buttonSelectedColour;
+
+    //add event listeners
+    document.getElementById('none-button').addEventListener('click', noLocation);
+    document.getElementById('clear-button-heatmap').addEventListener('click', clearDots); //clear button
+    activateBackButton(selectShockRecipient)
+    activateNextButton(rateSensationIntensity)
+
+    //change image to red shaded version
+
+    //(must link to image online starting https instead of 
+    //image in local files otherwise image url will not update on tablets due to storage of original url in cache)
+    //heatmapImage.src = "body outline red.jpg"
+    heatmapImage.src = imgBodyOutlineRedURL;
+
+    //Update stored values
+    painLocation = 'all over';
+}
+
+function noLocation() {
+    //Remove dots
+    clearDots()
+
+    //change colour of buttons
+    resetHeatmapButtons()
+    resetBackNextButtons()
+    document.getElementById('none-button').style.backgroundColor = buttonSelectedColour;
+    
+    //add event listeners
+    document.getElementById('all-button').addEventListener('click', allOverLocation);
+    document.getElementById('clear-button-heatmap').addEventListener('click', clearDots); //clear button
+    activateBackButton(selectShockRecipient)
+    activateNextButton(processSensationRating)
+
+    //Update stored values
+    painLocation = 'none';
+    sensationRating = 0;
+    
+}
+
+function resetHeatmapButtons() {
+    //change colour of buttons
+    document.getElementById('all-button').style.backgroundColor = heatmapButtonColour;
+    document.getElementById('none-button').style.backgroundColor = heatmapButtonColour;
+    document.getElementById('clear-button-heatmap').style.backgroundColor = heatmapButtonColour;
+
+    //Remove event listeners
+    document.getElementById('all-button').removeEventListener('click', allOverLocation);
+    document.getElementById('all-button').removeEventListener('click', increaseDotSize);
+    document.getElementById('none-button').removeEventListener('click', decreaseDotSize);
+    document.getElementById('none-button').removeEventListener('click', noLocation);
+}
+
+function resetBackNextButtons() {
+    //change back button colour to active
+    document.getElementById('back-button').style.backgroundColor = navigationButtonColour;
+
+    //disable next button
+    document.getElementById('next-button').disabled = true; //disable next button
+
+    //remove event listeners - back button
+    document.getElementById('back-button').removeEventListener('click', enterUserID);
+    document.getElementById('back-button').removeEventListener('click', enterFriendName);
+    document.getElementById('back-button').removeEventListener('click', selectShockRecipient);
+    document.getElementById('back-button').removeEventListener('click', rateLocation);
+    document.getElementById('back-button').removeEventListener('click', rateEmotion);
+
+    //remove event listeners - next button
+    document.getElementById('next-button').removeEventListener('click', recordUserID);
+    document.getElementById('next-button').removeEventListener('click', showThankYouMessage);
+    document.getElementById('next-button').removeEventListener('click', trialStart);
+    document.getElementById('next-button').removeEventListener('click', rateSensationIntensity);
+    document.getElementById('next-button').removeEventListener('click', processSensationRating);
+    document.getElementById('next-button').removeEventListener('click', endTrial);
+
+}
+
+function activateNextButton(functionToExecute) {
+    document.getElementById('next-button').disabled = false; //activate next button
+    document.getElementById('next-button').style.backgroundColor = navigationButtonColour; //change colour
+
+    //add event listener to next button
+    document.getElementById('next-button').addEventListener('click', functionToExecute);
+}
+
+function activateBackButton(functionToExecute) {
+    document.getElementById('back-button').disabled = false; //activate next button
+    document.getElementById('back-button').style.backgroundColor = navigationButtonColour; //change colour
+
+    //add event listener to back button
+    document.getElementById('back-button').addEventListener('click', functionToExecute);
+}
+
+//funtion for downloading data
+function downloadData(){
+    //get latest data stored in the browser
+    var dataLatest = JSON.parse(localStorage.getItem('dataAllTrials'));
+
+    //create filename based on participant ID and datetime
+    const filename = `${userID}_${datetimeStart}.csv`; 
+
+    //write json to csv (using json2csv wrapper)
+    writeToCsv(filename, json2csv.parse(dataLatest), { header: false }); 
+}
+
+// function for writing csv to file
+function writeToCsv(filename, csvData) {
+    const element = document.createElement("a");
+
+    element.setAttribute("href", `data:text/csv;charset=utf-8,${csvData}`);
+    element.setAttribute("download", filename);
+    element.style.display = "none";
+
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+}
+
+// function for geeting random element from array
+function getRandomElement(array) {
+    const randomIndex = Math.floor(Math.random() * array.length);
+    return array[randomIndex];
+}
+
+//function for ending shock workup phase
+function endWorkup(){
+
+    //show misc text and navigation buttons
+    hideAll()
+    document.getElementById('miscTextContainer').style.display = 'block';
+    document.getElementById('containerStartMainButton').style.display = 'flex';
+
+    //change text of prompt and button
+    document.getElementById('miscText').innerHTML = `Shock workup complete. <br> Click the button below to start the main task.`;
+    document.getElementById('start-main-button').textContent = `Start main task`;
+
+    //set colour of button to start main task
+    document.getElementById('start-main-button').style.backgroundColor = endWorkupOrTaskButtonColour;
+
+    //download the data
+    downloadData()
+
+    //update the phase of the task
+    phase = 'main_task';
+
+    //add event listener to start button
+    document.getElementById('start-main-button').addEventListener('click', trialStart);
+    
+}
+
+//function for ending shock workup phase
+function endTask(){
+
+    //show misc text and navigation buttons
+    hideAll()
+    document.getElementById('miscTextContainer').style.display = 'block';
+    document.getElementById('containerStartMainButton').style.display = 'flex';
+
+    //remove event listers from the start-main-button
+    document.getElementById('start-main-button').removeEventListener('click', trialStart);
+
+    //change text of prompt and button
+    document.getElementById('miscText').textContent = `Task complete! \n Click the button below to close the window.`;
+    document.getElementById('start-main-button').textContent = `Close window`;
+
+    //download the data
+    downloadData()
+
+    //add event listener to start button
+    document.getElementById('start-main-button').addEventListener('click', closeWindow);
+    
+}
+
+//function for closing the browser window
+function closeWindow(){
+
+    // Print message to console
+    console.log("Script is ending, attempting to close window...");
+    
+    // Attempt to close the window
+    window.close();
+
+}
+
+//function for hiding all html elements
+function hideAll() {
+    const allDivs = document.getElementsByTagName("div");
+    if (allDivs.length > 0) {
+        for (var i = 0; i < allDivs.length; i++) {
+            allDivs[i].style.display = "none";
+        }
+    }
+}
+
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/json2csv"></script> <!--script for saving data (converting json to csv)-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+</body>
+</html>
