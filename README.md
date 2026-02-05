@@ -7,7 +7,7 @@ PLEASE NOTE: as of February 2026, participant datafiles cannot be publicised in 
 
 -------Key to files-------
 - **empathy_task.m**     MATLAB task script, which displays trial information to each subject via a separate monitor and delivers shocks to either subject's ankle via the parallel port and two Digitimer DS 7 devices
-- **.jpg files **        Stimuli for empathy_task.m
+- ** .jpg files **        Stimuli for empathy_task.m
 - **submit_ratings_on_tablets.html**       html/JavaScript/CSS script for each subject to rate their emotions, run on one Android tablets for each subject
 - **Empathy task data preprocessing.ipynb**     Jupyter notebook (python) script for linking psychophysiology data to task conditions datafile, checking psychophysiology data, and calculating psychophysiology metrics
 - **empathyAnalysis.rmd**     R markdown script for statistical analysis of task data
